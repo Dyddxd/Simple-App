@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Welcome{% if username %}, {{ username }}{% endif %}!</h1>
+    {% if username %}
+        <p>This is a protected page. Only logged-in users can see this content.</p>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <p>Please <a href="/login">login</a> or <a href="/register">register</a>.</p>
+    {% endif %}
+</body>
+</html>
