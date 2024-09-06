@@ -8,8 +8,21 @@
 </head>
 <body>
     <h1>Welcome{% if username %}, {{ username }}{% endif %}!</h1>
+    
     {% if username %}
         <p>This is a protected page. Only logged-in users can see this content.</p>
+
+        {% if profile %}
+            <h2>Your Profile Information:</h2>
+            <ul>
+                <li><strong>Description:</strong> {{ profile.description }}</li>
+                <li><strong>Age:</strong> {{ profile.age }}</li>
+                <li><strong>Occupation:</strong> {{ profile.occupation }}</li>
+            </ul>
+        {% else %}
+            <p>Your profile is incomplete. <a href="/profile">Complete your profile</a>.</p>
+        {% endif %}
+        
         <a href="/logout">Logout</a>
     {% else %}
         <p>Please <a href="/login">login</a> or <a href="/register">register</a>.</p>
