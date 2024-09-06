@@ -75,7 +75,7 @@ async def register_user(request: Request, username: str = Form(...), password: s
             return templates.TemplateResponse("register.html", {"request": request, "error": "Username already exists."})
         
         hashed_password = hash_password(password)
-        cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
         connection.commit()
         connection.close()
         return RedirectResponse(url="/login", status_code=302)
@@ -95,7 +95,7 @@ async def login_user(request: Request, username: str = Form(...), password: str 
         user = cursor.fetchone()
         connection.close()
         
-        if not user or not verify_password(password, user["password_hash"]):
+        if not user or not verify_password(password, user["password"]):
             return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials."})
         
         # Store session data
