@@ -7,7 +7,6 @@ from passlib.context import CryptContext
 from starlette.middleware.sessions import SessionMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from redis import Redis
 from dotenv import load_dotenv
 import os
 import mysql.connector
@@ -28,10 +27,8 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-# Initialize rate limiter
-redis = Redis(host='localhost', port=6379)  # Adjust host and port as necessary
-limiter = Limiter(key_func=get_remote_address, storage=redis)
-
+# Initialize rate limiter with in-memory storage
+limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
 # Password hashing context
