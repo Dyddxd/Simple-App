@@ -5,12 +5,19 @@ from fastapi.responses import RedirectResponse
 from itsdangerous import URLSafeSerializer
 from passlib.context import CryptContext
 from starlette.middleware.sessions import SessionMiddleware
-import os
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from redis import Redis
 from dotenv import load_dotenv
+import os
 import mysql.connector
 from mysql.connector import Error
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)
 
 # Secret key for session management
 load_dotenv()
@@ -20,6 +27,12 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+# Initialize rate limiter
+redis = Redis(host='localhost', port=6379)  # Adjust host and port as necessary
+limiter = Limiter(key_func=get_remote_address, storage=redis)
+
+app.state.limiter = limiter
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -61,10 +74,12 @@ def get_db_connection():
 
 # Register route
 @app.get("/register")
+@limiter.limit("5/minute")  # Rate limit of 5 requests per minute
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 @app.post("/register")
+@limiter.limit("5/minute")
 async def register_user(request: Request, username: str = Form(...), password: str = Form(...)):
     connection = get_db_connection()
     if connection:
@@ -83,10 +98,12 @@ async def register_user(request: Request, username: str = Form(...), password: s
 
 # Login route
 @app.get("/login")
+@limiter.limit("5/minute")
 async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
+@limiter.limit("5/minute")
 async def login_user(request: Request, username: str = Form(...), password: str = Form(...)):
     connection = get_db_connection()
     if connection:
@@ -110,6 +127,7 @@ async def login_user(request: Request, username: str = Form(...), password: str 
 
 # Profile setup route
 @app.get("/profile")
+@limiter.limit("5/minute")
 async def profile_form(request: Request):
     user = request.session.get("user")
     if user:
@@ -117,6 +135,7 @@ async def profile_form(request: Request):
     return RedirectResponse(url="/login")
 
 @app.post("/profile")
+@limiter.limit("5/minute")
 async def profile_setup(request: Request, description: str = Form(...), age: int = Form(...), occupation: str = Form(...)):
     user = request.session.get("user")
     if user:
@@ -137,6 +156,7 @@ async def profile_setup(request: Request, description: str = Form(...), age: int
 
 # Home route
 @app.get("/home")
+@limiter.limit("5/minute")
 async def home(request: Request):
     user = request.session.get("user")
     if user:
@@ -153,12 +173,14 @@ async def home(request: Request):
 
 # Logout route
 @app.get("/logout")
+@limiter.limit("5/minute")
 async def logout(request: Request):
     request.session.pop("user", None)
     return RedirectResponse(url="/", status_code=302)
 
 # Root route
 @app.get("/")
+@limiter.limit("5/minute")
 async def root(request: Request):
     user = request.session.get("user")
     if user:

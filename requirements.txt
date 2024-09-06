@@ -4,3 +4,8 @@ python-dotenv
 passlib
 itsdangerous
 mysql-connector-python
+starlette
+slowapi
+prometheus-fastapi-instrumentator
+jinja2
+python-multipart
