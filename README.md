@@ -55,7 +55,7 @@ This is a FastAPI web application with user registration, login, and profile man
     ```bash
     uvicorn main:app --host 0.0.0.0 --port 8000
     
-The application will be available at *http://localhost:8000*
+The application will be available at `http://localhost:8000`
 
 2. **Testing Rate Limiting:**
 
@@ -66,16 +66,16 @@ The application will be available at *http://localhost:8000*
 
 1. **Prometheus configuration:**
 
-Configure *prometheus.yml* file as you need but basically it is already designed to work fine with FastAPI application.
+Configure `prometheus.yml` file as you need but basically it is already designed to work fine with FastAPI application.
 
 2. **Run Prometheus using Docker:**
 
     ```bash
     docker run -d --name prometheus --network host -p 9090:9090 -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
-Prometheus will be available at http://localhost:9090
+Prometheus will be available at `http://localhost:9090`
 
-Also you can check your Prometheus targets at http://localhost:9090/targets
+Also you can check your Prometheus targets at `http://localhost:9090/targets`
 
 3. **Run Grafana using Docker:**
 
@@ -86,4 +86,4 @@ Also you can check your Prometheus targets at http://localhost:9090/targets
     ```bash
     ip a
 
-In this configuration, you must use local IP address of your PC as url for Prometheus http://local_IP_address:9090
+In this configuration, you must use local IP address of your PC as url for Prometheus `http://local_IP_address:9090`
